@@ -12,7 +12,6 @@
   •	https://services2.arcgis.com/cFEFS0EWrhfDeVw9/ArcGIS/rest/services/World_Earthquakes/FeatureServer
 
 *Données supplémentaires (à vous d’en sélectionner, si nécessaire) :*
-
   •	https://services2.arcgis.com/cFEFS0EWrhfDeVw9/ArcGIS/rest/services 
   •	https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services
   •	https://tiles.arcgis.com/tiles/C8EMgrsFcRFL6LrL/arcgis/rest/services 
