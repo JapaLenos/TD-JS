@@ -4,7 +4,7 @@
 
 # TD 2
 
-###1/Séismes 2008 à 2018 + plaques tectoniques
+##1/Séismes 2008 à 2018 + plaques tectoniques
 
 *Données obligatoires :*
 •	https://services2.arcgis.com/cFEFS0EWrhfDeVw9/arcgis/rest/services/plate_tectonics_boundaries/FeatureServer
@@ -18,7 +18,7 @@
 •	https://tiles.arcgis.com/tiles/P3ePLMYs2RVChkJx/arcgis/rest/services
 •	https://sampleserver6.arcgisonline.com/arcgis/rest/services
 
-###2/Population mondiale (recensement 2020 ; grille de 110km env.) + limite des pays
+##2/Population mondiale (recensement 2020 ; grille de 110km env.) + limite des pays
 
 *Données obligatoires :*
 •	https://services2.arcgis.com/cFEFS0EWrhfDeVw9/arcgis/rest/services/World_population_count_2020/FeatureServer
