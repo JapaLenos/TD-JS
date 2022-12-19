@@ -1,0 +1,255 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    
+    <title>World Earthquakes 2008-2018</title>
+    
+    <style>
+        html,body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            }
+        #timeSliderDiv {
+            position: absolute;
+            left: 1%;
+            right: 1%;
+            bottom: 20px;
+        }
+        h1 {
+            font-weight: 100;
+            margin-bottom: 0;
+            font-family: "Avenir Next", "Avenir", "Helvetica Neue", sans-serif;
+            color : rgb(250, 250, 250);
+            position: absolute;
+            left: 1%;
+            z-index: 9;
+        }
+    </style>
+    
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/dark/main.css">
+    <script src="https://js.arcgis.com/4.25/"></script> 
+
+    
+    <script>
+    require(["esri/config","esri/views/SceneView","esri/Map","esri/layers/FeatureLayer","esri/core/reactiveUtils","esri/widgets/TimeSlider","esri/widgets/Legend"],
+        function (esriConfig,SceneView,Map,FeatureLayer,reactiveUtils,TimeSlider,Legend) {
+
+        
+            /////////////////////////////////////////////earthquakes
+        
+            const earthquakes_lyr = new FeatureLayer({
+            // URL to the service
+                url: "https://services2.arcgis.com/cFEFS0EWrhfDeVw9/ArcGIS/rest/services/World_Earthquakes/FeatureServer/0",
+                hasZ : true,
+                elevationInfo: {
+                    mode: "absolute-height",
+                    featureExpressionInfo: {
+                        expression: "-$feature.depth * 8"
+                    },
+                    unit: "kilometers"
+                }
+            });
+            
+        
+            earthquakes_lyr.renderer = {
+                type : "class-breaks",
+                field: "mag"
+            };
+            
+            earthquakes_lyr.renderer.addClassBreakInfo({
+                minValue: 0,
+                maxValue: 5,
+                symbol: {
+                    type: "point-3d",  // autocasts as new PointSymbol3D()
+                    symbolLayers: [{
+                        type: "object",  // autocasts as new ObjectSymbol3DLayer()
+                        resource: { primitive: "sphere" },
+                        material: { color: [255, 243, 176, 0.5] },
+                        height: 60000,
+                        width: 60000
+                    }]
+                }
+            });
+            earthquakes_lyr.renderer.addClassBreakInfo({
+                minValue: 5,
+                maxValue: 7.5,
+                symbol: {
+                    type: "point-3d",  // autocasts as new PointSymbol3D()
+                    symbolLayers: [{
+                        type: "object",  // autocasts as new ObjectSymbol3DLayer()
+                        resource: { primitive: "sphere" },
+                        material: { color: [224, 159, 62] },
+                        height: 150000,
+                        width: 150000
+                    }]
+                }
+            });
+            earthquakes_lyr.renderer.addClassBreakInfo({
+                minValue: 7.5,
+                maxValue: 10,
+                symbol: {
+                    type: "point-3d",  // autocasts as new PointSymbol3D()
+                    symbolLayers: [{
+                        type: "object",  // autocasts as new ObjectSymbol3DLayer()
+                        resource: { primitive: "sphere" },
+                        material: { color: [158, 42, 43] },
+                        height: 250000,
+                        width: 250000
+                    }]
+                }
+            });
+        
+        
+            /////////////////////////////////////////////tecto plates
+        
+        
+            const tectoplates_lyr = new FeatureLayer({
+            // URL to the service
+                url: "https://services2.arcgis.com/cFEFS0EWrhfDeVw9/arcgis/rest/services/plate_tectonics_boundaries/FeatureServer"
+            });
+        
+            tectoplates_lyr.renderer = {
+                type : "simple",
+                symbol : {
+                    type : "line-3d", // autocasts as new SimpleRenderer()
+                    symbolLayers: [{
+                        type: "line",  // autocasts as new LineSymbol3DLayer()
+                        size: 2,  // points
+                        material: { color: [0, 255, 255, 0.5] },
+                    }]
+                }
+            };
+            //tectoplates_lyr.effect = "brightness(5) hue-rotate(270deg) contrast(200%)";
+        
+            /////////////////////////////////////////////countries
+        
+            const countries_lyr = new FeatureLayer({
+            // URL to the service
+                url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/World_Countries_(Generalized)/FeatureServer/0"
+            });
+            
+            countries_lyr.renderer = {
+                type : "simple",
+                symbol : {
+                    type : "polygon-3d", // autocasts as new SimpleRenderer()
+                    symbolLayers: [{
+                        type: "fill",  // autocasts as new LineSymbol3DLayer()
+                        material: { color: [0, 255, 255, 0.1] },
+                    }]
+                }
+            };
+        
+        
+        
+            /////////////////////////////////////////Map & Scene
+        
+            const map = new Map({
+                //basemap: "dark-gray-vector",
+                ground: {
+                    opacity: 0
+                },
+                layers: [tectoplates_lyr,earthquakes_lyr,countries_lyr]
+            });
+
+            
+            
+            const view = new SceneView({
+                map: map,
+                container: "viewDiv",
+                scale: 50000000,
+                center: [7.7588522, 20]
+            });
+        
+        
+            /////////////////////////////////////////////UI 
+            const timeSlider = new TimeSlider({
+                container: "timeSliderDiv",
+                view: view,
+                timeVisible: false, // show the time stamps on the timeslider
+                loop: true,
+  
+            });
+        
+            view.whenLayerView(earthquakes_lyr).then((lv) => {
+            // around up the full time extent to full month
+                timeSlider.fullTimeExtent =
+                { // entire extent of the timeSlider
+                    start: new Date(2008, 0, 1),
+                    end: new Date(2018, 0, 1)
+                }, 
+                timeSlider.stops = {
+                    interval: {
+                        value: 1,
+                        unit: "years"
+                    }
+                };
+            });
+            timeSlider.play();
+
+            earthquakes_lyr.when(() => {
+                //console.log(earthquakes_lyr.fields[5].name);
+                earthquakes_lyr.fields[5].alias = " "
+            });
+        
+        
+            const legend = new Legend({
+                view: view,
+                style: "card",
+                layerInfos: [
+                    {
+                    layer: earthquakes_lyr,
+                    title: "Earthquake Magnitude"
+                    },
+                    {
+                    layer: tectoplates_lyr,
+                    title: "Tectonic Plates Borders"
+                    }
+                ]
+            });
+
+        view.ui.add(legend, "top-right");
+        
+        view.ui.remove("navigation-toggle");  
+        view.ui.remove("zoom");
+        view.ui.remove("compass"); 
+        
+/*        timeSlider.set({
+            loop: true,
+            playRate: 100
+        });*/
+        //timeSlider.play();
+        
+            
+        /////////////////////////////////////////////rotate
+
+        
+            //tests rendre la terre transparente
+/*            view.when(function(){
+                console.log(map.allLayers.length);
+                console.log(map.basemap.baseLayers.getItemAt(0));
+                map.basemap.baseLayers.getItemAt(0).opacity = 0,2;
+            });*/
+    
+    });
+        
+
+        
+    </script>
+    
+</head> 
+
+
+<body>
+    <div id="titre">
+        <h1>An Earthquake Story (2008-2018)</h1>   
+    </div>
+  <div id="viewDiv"></div>
+  <div id="timeSliderDiv"></div>
+</body>
+
+</html>
